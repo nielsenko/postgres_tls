@@ -21,6 +21,8 @@ dev_dependencies:
     path: ../../../../byolimit/dart/zig_hook/dart
 
 zig_hook:
+  # Zig 0.17's std.Io.Threaded does not compile for iOS.
+  exclude: [ios-arm64, ios-arm64-simulator, ios-x64-simulator]
   cpu:
     x64: x86_64_v2+aes+pclmul+avx
     arm64: generic+aes+sha2
