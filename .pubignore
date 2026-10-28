@@ -1,0 +1,9 @@
+# The published package carries binary/ and no build.zig, so the hook
+# uses the prebuilt libraries. src/ stays for reading.
+/.dart_tool/
+/.zig-cache/
+/zig-out/
+/build.zig
+/build.zig.zon
+pubspec.lock
+/zig-pkg/
