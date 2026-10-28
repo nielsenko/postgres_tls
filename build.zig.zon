@@ -4,6 +4,7 @@
     .fingerprint = 0xabc23e241b518808,
     .minimum_zig_version = "0.17.0",
     .dependencies = .{
+        .zig_hook = .{ .path = "../../../../byolimit/dart/zig_hook" },
         // lalinsky's tls.zig at the commit relic_native uses.
         .tls = .{
             .url = "git+https://github.com/nielsenko/tls.zig#a9db8805d768af5254eecc07323dea3c43ae2a07",
