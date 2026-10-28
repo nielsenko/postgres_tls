@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:postgres/postgres.dart' show SslMode;
 import 'package:postgres_tls/postgres_tls.dart';
 import 'package:test/test.dart';
 
@@ -125,34 +126,37 @@ void main() {
     socket.destroy();
   });
 
-  group('Given PostgresTlsOverrides for one endpoint', () {
+  group('Given nativeTlsConnector', () {
     late EchoServer server;
     setUp(() async => server = await EchoServer.start());
     tearDown(() => server.close());
 
-    test('when Socket.connect targets that endpoint, '
-        'then it returns a PostgresTlsSocket', () async {
-      final socket = await IOOverrides.runWithIOOverrides(
-        () => Socket.connect('localhost', server.port),
-        PostgresTlsOverrides({('localhost', server.port)}),
+    test('when connecting with SslMode.require, '
+        'then it accepts the test certificate', () async {
+      final socket = await nativeTlsConnector(
+        'localhost',
+        server.port,
+        sslMode: SslMode.require,
+        timeout: const Duration(seconds: 5),
       );
+      final echoed = socket.first;
+      socket.add([1, 2, 3]);
 
-      expect(socket, isA<PostgresTlsSocket>());
+      expect(await echoed, [1, 2, 3]);
       socket.destroy();
     });
 
-    test('when Socket.connect targets another endpoint, '
-        'then it returns a dart:io socket', () async {
-      final other = await ServerSocket.bind(InternetAddress.loopbackIPv4, 0);
-      addTearDown(other.close);
-
-      final socket = await IOOverrides.runWithIOOverrides(
-        () => Socket.connect(InternetAddress.loopbackIPv4, other.port),
-        PostgresTlsOverrides({('localhost', server.port)}),
+    test('when connecting with SslMode.verifyFull, '
+        'then it checks the chain against the system roots', () async {
+      await expectLater(
+        nativeTlsConnector(
+          'localhost',
+          server.port,
+          sslMode: SslMode.verifyFull,
+          timeout: const Duration(seconds: 5),
+        ),
+        throwsA(isA<HandshakeException>()),
       );
-
-      expect(socket, isNot(isA<PostgresTlsSocket>()));
-      socket.destroy();
     });
   });
 }

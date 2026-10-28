@@ -2,5 +2,5 @@
 /// dart:io's SecureSocket.
 library;
 
-export 'src/postgres_tls_overrides.dart';
+export 'src/native_tls_connector.dart';
 export 'src/postgres_tls_socket.dart';

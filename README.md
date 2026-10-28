@@ -12,23 +12,24 @@ in the queue. `PostgresTlsSocket` reads the plain socket and encrypts and
 decrypts with synchronous FFI calls on the isolate's own thread.
 
 ```dart
-IOOverrides.global = PostgresTlsOverrides({('db.example.com', 5432)});
-
 final pool = Pool.withEndpoints(
   [Endpoint(host: 'db.example.com', database: 'app', ...)],
-  settings: PoolSettings(sslMode: SslMode.disable),
+  settings: PoolSettings(
+    sslMode: SslMode.require,
+    tlsConnector: nativeTlsConnector,
+  ),
 );
 ```
 
-package:postgres opens its sockets through `Socket.connect`, which the
-overrides answer with a `PostgresTlsSocket` for the listed endpoints. That
-socket sends the SSLRequest and runs the handshake itself, so
-package:postgres must not: give it `SslMode.disable`. The server name
-is the endpoint's host.
+package:postgres hands the connection to `nativeTlsConnector`, which sends
+the SSLRequest and runs the handshake with the endpoint's host as the
+server name. With `SslMode.verifyFull` the chain must name the host and
+lead to the system's roots. `SslMode.require` accepts any certificate.
+For other roots, call `PostgresTlsSocket.connect` with `trustedRoots`
+from a connector of your own.
 
-By default any certificate passes, as with `SslMode.require`. With
-`verify: true` the chain must name the host and lead to the system's
-roots, or to `trustedRoots` when given.
+`ConnectionSettings.tlsConnector` is not in a released package:postgres
+yet, so `pubspec.yaml` overrides postgres with a checkout that has it.
 
 ## Building
 

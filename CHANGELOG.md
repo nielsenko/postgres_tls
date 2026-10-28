@@ -1,2 +1,2 @@
 ## 0.1.0
-- Initial version: `PostgresTlsSocket` and `PostgresTlsOverrides`
+- Initial version: `PostgresTlsSocket` and `nativeTlsConnector`
