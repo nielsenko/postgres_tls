@@ -1,6 +1,5 @@
 .dart_tool/
 .zig-cache/
 zig-out/
-binary/
 pubspec.lock
 zig-pkg/
